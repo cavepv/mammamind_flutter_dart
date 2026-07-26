@@ -39,3 +39,41 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: build/web
           publish_branch: gh-pages
+
+  # ponytail: showcase-only artifacts, not published to any store - unsigned
+  # release APK and an unsigned iOS .app, just to prove the app builds and
+  # runs on both platforms for job-application demo purposes.
+  build-android:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build apk --release
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mammamind-android-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build-ios:
+    needs: test
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: flutter build ios --release --no-codesign
+      - run: |
+          cd build/ios/iphoneos
+          zip -r Runner.app.zip Runner.app
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mammamind-ios-unsigned
+          path: build/ios/iphoneos/Runner.app.zip
