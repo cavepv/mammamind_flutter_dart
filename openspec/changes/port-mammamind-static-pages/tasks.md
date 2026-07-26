@@ -51,7 +51,7 @@
 - [x] 6.1 Add `.github/workflows/deploy.yml` adapted from `flutterCV`'s
       `cv_app.yml` (test job + `deploy-web` job building with
       `--base-href /mammamind_flutter_dart/` and publishing to `gh-pages`)
-- [ ] 6.2 Enable GitHub Pages for this repo, serving from the `gh-pages`
+- [x] 6.2 Enable GitHub Pages for this repo, serving from the `gh-pages`
       branch
 - [x] 6.3 Push to `master`/`main`, confirm the Actions workflow deploys
       successfully, and verify the site loads at
