@@ -16,7 +16,7 @@ class MammaMindApp extends StatelessWidget {
       title: 'MammaMind (Flutter/Dart demo)',
       debugShowCheckedModeBanner: false,
       theme: buildMammaMindTheme(),
-      home: const LandingScreen(),
+      home: LandingScreen(),
     );
   }
 }

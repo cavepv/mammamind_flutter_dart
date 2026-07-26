@@ -22,7 +22,7 @@ void main() {
   testWidgets('Landing screen shows demo banner and hero headline',
       (WidgetTester tester) async {
     await tester.pumpWidget(const MammaMindApp());
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     expect(find.byType(DemoBanner), findsOneWidget);
     expect(find.text(MammaMindData.heroHeadline), findsOneWidget);
@@ -32,7 +32,7 @@ void main() {
       (WidgetTester tester) async {
     _makeSurfaceTall(tester);
     await tester.pumpWidget(const MammaMindApp());
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     await tester.tap(find.text('Läs mer om kursen'));
     await tester.pumpAndSettle();
@@ -46,7 +46,7 @@ void main() {
       (WidgetTester tester) async {
     _makeSurfaceTall(tester);
     await tester.pumpWidget(const MammaMindApp());
-    await tester.pumpAndSettle();
+    await tester.pump();
 
     await tester.tap(find.text('Läs mer om workshopen'));
     await tester.pumpAndSettle();
@@ -58,8 +58,8 @@ void main() {
   testWidgets('Course CTA shows demo-only message instead of navigating away',
       (WidgetTester tester) async {
     _makeSurfaceTall(tester);
-    await tester.pumpWidget(const MaterialApp(home: LandingScreen()));
-    await tester.pumpAndSettle();
+    await tester.pumpWidget(MaterialApp(home: LandingScreen()));
+    await tester.pump();
 
     await tester.tap(find.text('Läs mer om kursen'));
     await tester.pumpAndSettle();

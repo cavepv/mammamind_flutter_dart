@@ -12,40 +12,62 @@ import 'mammamind_data.dart';
 import 'theme.dart';
 import 'workshop_detail_screen.dart';
 
+/// Matches the source site's desktop `.container` max-width (general.css),
+/// so wide/fullscreen viewports get a readable, left-aligned content column
+/// instead of section text and cards stretching edge-to-edge.
+const double _kContentMaxWidth = 1100;
+
 class LandingScreen extends StatelessWidget {
-  const LandingScreen({super.key});
+  LandingScreen({super.key});
+
+  // Scroll anchor for the hero's scroll-indicator button.
+  final GlobalKey _coursesKey = GlobalKey();
 
   @override
   Widget build(BuildContext context) {
     return MammaMindPage(
       body: ListView(
-        padding: const EdgeInsets.symmetric(vertical: MammaMindSpacing.md),
+        padding: EdgeInsets.zero,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: MammaMindSpacing.md,
-            ),
-            child: _Hero(),
+          _Hero(
+            onScrollIndicatorTap: () {
+              // ponytail: courses section may not be built yet (lazy
+              // ListView) when this is tapped right after first paint;
+              // currentContext is null until it's laid out, so guard it.
+              final ctx = _coursesKey.currentContext;
+              if (ctx != null) {
+                Scrollable.ensureVisible(
+                  ctx,
+                  duration: const Duration(milliseconds: 400),
+                );
+              }
+            },
           ),
           const SizedBox(height: MammaMindSpacing.lg),
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: MammaMindSpacing.md,
-            ),
-            child: Column(
-              children: [
-                _WhyMammaMindSection(),
-                const _Divider(),
-                _CurrentCoursesSection(),
-                const _Divider(),
-                _WorkshopsSection(),
-                const _Divider(),
-                _AboutMeSection(),
-                const _Divider(),
-                _FaqSection(),
-                const SizedBox(height: MammaMindSpacing.md),
-                _ContactSection(),
-              ],
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: _kContentMaxWidth),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: MammaMindSpacing.md,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _WhyMammaMindSection(),
+                    const _Divider(),
+                    Container(key: _coursesKey, child: _CurrentCoursesSection()),
+                    const _Divider(),
+                    _WorkshopsSection(),
+                    const _Divider(),
+                    _AboutMeSection(),
+                    const _Divider(),
+                    _FaqSection(),
+                    const SizedBox(height: MammaMindSpacing.md),
+                    _ContactSection(),
+                  ],
+                ),
+              ),
             ),
           ),
           const SizedBox(height: MammaMindSpacing.lg),
@@ -62,85 +84,183 @@ class _Divider extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const Padding(
-      padding: EdgeInsets.symmetric(vertical: MammaMindSpacing.md),
-      child: Divider(color: MammaMindColors.cardBorder),
+      // ponytail: 60px doesn't map to an existing MammaMindSpacing token;
+      // hardcoded per explicit user request rather than adding a one-off
+      // spacing constant for a single usage.
+      padding: EdgeInsets.symmetric(vertical: 60),
+      child: SizedBox(
+        // ponytail: width must be explicit - without it the DecoratedBox
+        // has no intrinsic size and collapses to zero width inside a
+        // Column, making the divider invisible.
+        width: double.infinity,
+        height: 1,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                Color(0x00B89061),
+                MammaMindColors.cardBorder,
+                Color(0x00B89061),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
 
 class _Hero extends StatelessWidget {
+  final VoidCallback onScrollIndicatorTap;
+
+  const _Hero({required this.onScrollIndicatorTap});
+
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      // ponytail: source site's hero is edge-to-edge; this screen pads all
-      // sections uniformly, so the hero gets rounded corners instead of a
-      // full-bleed background - acceptable given a single shared ListView
-      // padding, revisit if a full-bleed hero becomes a priority.
-      borderRadius: BorderRadius.circular(MammaMindRadius.lg),
-      child: Stack(
-        children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/hero-bg.jpeg'),
-                fit: BoxFit.cover,
-              ),
-            ),
-            child: const DecoratedBox(
-              // Mirrors hero::before's subtle readability gradient overlay.
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0x1AF3E6E1), Color(0x03F3F5E1)],
-                ),
-              ),
-              child: SizedBox(width: double.infinity, height: 420),
+    // ponytail: full-bleed like the source <header class="hero"> - no
+    // padding/rounded clipping, spans the full viewport width and starts
+    // right at the top of the scroll body.
+    return Stack(
+      children: [
+        Container(
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/hero-bg.jpeg'),
+              fit: BoxFit.cover,
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(MammaMindSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SvgPicture.asset(
-                        'assets/svg/mamma_mind_logo_text.svg',
-                        height: 24,
-                      ),
-                      const SizedBox(height: 4),
-                      SvgPicture.asset(
-                        'assets/svg/mamma_mind_logo.svg',
-                        height: 90,
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: MammaMindSpacing.md),
-                Center(
-                  child: Text(
-                    MammaMindData.heroHeadline,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.headlineMedium,
-                  ),
-                ),
-                const SizedBox(height: MammaMindSpacing.xs),
-                Center(
-                  child: Text(
-                    MammaMindData.heroLead,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.bodyLarge,
-                  ),
-                ),
-              ],
+          child: const DecoratedBox(
+            // Mirrors hero::before's subtle readability gradient overlay.
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0x1AF3E6E1), Color(0x03F3F5E1)],
+              ),
+            ),
+            child: SizedBox(width: double.infinity, height: 460),
+          ),
+        ),
+        // Mirrors hero::after's fade into the page background below.
+        const Positioned(
+          left: 0,
+          right: 0,
+          bottom: 0,
+          height: 90,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Color(0x00DBD0BC), MammaMindColors.bgMain],
+              ),
             ),
           ),
-        ],
+        ),
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: _kContentMaxWidth),
+            child: Padding(
+              padding: const EdgeInsets.all(MammaMindSpacing.md),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: SvgPicture.asset(
+                      'assets/svg/mamma_mind_logo_combined.svg',
+                      // Mirrors logo.css: 100px mobile -> 200px desktop
+                      // (min-width: 768px), doubled to match the reference.
+                      height: MediaQuery.of(context).size.width >= 768
+                          ? 220
+                          : 110,
+                    ),
+                  ),
+                  const SizedBox(height: MammaMindSpacing.md),
+                  Center(
+                    child: Text(
+                      MammaMindData.heroHeadline,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.headlineMedium,
+                    ),
+                  ),
+                  const SizedBox(height: MammaMindSpacing.xs),
+                  Center(
+                    child: Text(
+                      MammaMindData.heroLead,
+                      textAlign: TextAlign.center,
+                      style: Theme.of(context).textTheme.bodyLarge,
+                    ),
+                  ),
+                  const SizedBox(height: MammaMindSpacing.lg),
+                  Center(child: _HeroScrollIndicator(onTap: onScrollIndicatorTap)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Ports .hero-scroll-indicator: a plain black arrow-down that floats up
+/// and down (mirrors the CSS `@keyframes float`) and scrolls to courses.
+class _HeroScrollIndicator extends StatefulWidget {
+  final VoidCallback onTap;
+
+  const _HeroScrollIndicator({required this.onTap});
+
+  @override
+  State<_HeroScrollIndicator> createState() => _HeroScrollIndicatorState();
+}
+
+class _HeroScrollIndicatorState extends State<_HeroScrollIndicator>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1250),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Respect reduced-motion preference, matching the source CSS's
+    // `@media (prefers-reduced-motion: no-preference)` guard on the float.
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.stop();
+    } else if (!_controller.isAnimating) {
+      _controller.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Scroll till aktuella kurser',
+      child: InkWell(
+        onTap: widget.onTap,
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, child) {
+            return Transform.translate(
+              offset: Offset(0, _controller.value * 6),
+              child: child,
+            );
+          },
+          child: const Icon(
+            Icons.keyboard_arrow_down,
+            color: Colors.black,
+            size: 56,
+          ),
+        ),
       ),
     );
   }
@@ -231,7 +351,15 @@ class _CourseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
+    return Container(
+      // ponytail: source site's .course-card has no card background at
+      // all (transparent, sits directly on the section's page color) -
+      // matching that instead of the Card widget's default white fill.
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        border: Border.all(color: MammaMindColors.cardBorder),
+        borderRadius: BorderRadius.circular(MammaMindRadius.lg),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(MammaMindSpacing.md),
         child: Column(
@@ -280,13 +408,8 @@ class _CurrentCoursesSection extends StatelessWidget {
           ).textTheme.bodySmall?.copyWith(color: MammaMindColors.textOngoing),
         ),
         const SizedBox(height: MammaMindSpacing.sm),
-        Text(
-          '🌿 ${MammaMindData.courseTitle}',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: MammaMindSpacing.xs),
         _CourseCard(
-          title: MammaMindData.courseTitle,
+          title: '🌿 ${MammaMindData.courseTitle}',
           metaLines: [
             'Startdatum: ${MammaMindData.courseSummaryStartDate}',
             MammaMindData.courseSummarySchedule,
@@ -320,13 +443,9 @@ class _WorkshopsSection extends StatelessWidget {
           ).textTheme.bodySmall?.copyWith(color: MammaMindColors.textCompleted),
         ),
         const SizedBox(height: MammaMindSpacing.sm),
-        Text(
-          '${MammaMindData.workshopTitle}: ${MammaMindData.workshopSubtitle}',
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-        const SizedBox(height: MammaMindSpacing.xs),
         _CourseCard(
-          title: MammaMindData.workshopTitle,
+          title:
+              '${MammaMindData.workshopTitle}: ${MammaMindData.workshopSubtitle}',
           metaLines: [
             'Datum: ${MammaMindData.workshopSummaryDate} 2026',
             'Tid kl. ${MammaMindData.workshopSummaryTime}',
@@ -349,8 +468,6 @@ class _AboutMeSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Om mig', style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: MammaMindSpacing.xs),
         Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 340),
@@ -377,6 +494,11 @@ class _AboutMeSection extends StatelessWidget {
           ),
         ),
         const SizedBox(height: MammaMindSpacing.sm),
+        // ponytail: source site's mobile layout is column-reverse on the
+        // image+text pair, so "Om mig" (part of the text block) lands
+        // right before its paragraphs, after the image.
+        Text('Om mig', style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: MammaMindSpacing.xs),
         for (final p in MammaMindData.aboutMeParagraphs)
           Padding(
             padding: const EdgeInsets.only(bottom: MammaMindSpacing.xs),
