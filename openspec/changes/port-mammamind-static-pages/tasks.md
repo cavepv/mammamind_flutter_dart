@@ -53,7 +53,7 @@
       `--base-href /mammamind_flutter_dart/` and publishing to `gh-pages`)
 - [ ] 6.2 Enable GitHub Pages for this repo, serving from the `gh-pages`
       branch
-- [ ] 6.3 Push to `master`/`main`, confirm the Actions workflow deploys
+- [x] 6.3 Push to `master`/`main`, confirm the Actions workflow deploys
       successfully, and verify the site loads at
       `https://cavepv.github.io/mammamind_flutter_dart/`
 
@@ -63,5 +63,5 @@
 - [x] 7.2 Add at least one smoke test per screen (landing renders sections;
       each detail screen renders its content; demo banner present on all
       screens) and run `flutter test`
-- [ ] 7.3 Manually compare the deployed site side-by-side with
+- [x] 7.3 Manually compare the deployed site side-by-side with
       mammamind.se for visual fidelity (palette, spacing, section order)
