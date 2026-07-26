@@ -7,6 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import 'course_detail_screen.dart';
 import 'demo_banner.dart';
+import 'footer.dart';
 import 'mammamind_data.dart';
 import 'theme.dart';
 import 'workshop_detail_screen.dart';
@@ -18,24 +19,37 @@ class LandingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MammaMindPage(
       body: ListView(
-        padding: const EdgeInsets.symmetric(
-          horizontal: MammaMindSpacing.md,
-          vertical: MammaMindSpacing.md,
-        ),
+        padding: const EdgeInsets.symmetric(vertical: MammaMindSpacing.md),
         children: [
-          _Hero(),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: MammaMindSpacing.md,
+            ),
+            child: _Hero(),
+          ),
           const SizedBox(height: MammaMindSpacing.lg),
-          _WhyMammaMindSection(),
-          const _Divider(),
-          _CurrentCoursesSection(),
-          const _Divider(),
-          _WorkshopsSection(),
-          const _Divider(),
-          _AboutMeSection(),
-          const _Divider(),
-          _FaqSection(),
-          const SizedBox(height: MammaMindSpacing.md),
-          _ContactSection(),
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: MammaMindSpacing.md,
+            ),
+            child: Column(
+              children: [
+                _WhyMammaMindSection(),
+                const _Divider(),
+                _CurrentCoursesSection(),
+                const _Divider(),
+                _WorkshopsSection(),
+                const _Divider(),
+                _AboutMeSection(),
+                const _Divider(),
+                _FaqSection(),
+                const SizedBox(height: MammaMindSpacing.md),
+                _ContactSection(),
+              ],
+            ),
+          ),
+          const SizedBox(height: MammaMindSpacing.lg),
+          const MammaMindFooter(),
         ],
       ),
     );
@@ -57,25 +71,77 @@ class _Divider extends StatelessWidget {
 class _Hero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SvgPicture.asset(
-          'assets/svg/mamma_mind_logo_combined.svg',
-          height: 140,
-        ),
-        const SizedBox(height: MammaMindSpacing.sm),
-        Text(
-          MammaMindData.heroHeadline,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.headlineMedium,
-        ),
-        const SizedBox(height: MammaMindSpacing.xs),
-        Text(
-          MammaMindData.heroLead,
-          textAlign: TextAlign.center,
-          style: Theme.of(context).textTheme.bodyLarge,
-        ),
-      ],
+    return ClipRRect(
+      // ponytail: source site's hero is edge-to-edge; this screen pads all
+      // sections uniformly, so the hero gets rounded corners instead of a
+      // full-bleed background - acceptable given a single shared ListView
+      // padding, revisit if a full-bleed hero becomes a priority.
+      borderRadius: BorderRadius.circular(MammaMindRadius.lg),
+      child: Stack(
+        children: [
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/hero-bg.jpeg'),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: const DecoratedBox(
+              // Mirrors hero::before's subtle readability gradient overlay.
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [Color(0x1AF3E6E1), Color(0x03F3F5E1)],
+                ),
+              ),
+              child: SizedBox(width: double.infinity, height: 420),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(MammaMindSpacing.md),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SvgPicture.asset(
+                        'assets/svg/mamma_mind_logo_text.svg',
+                        height: 24,
+                      ),
+                      const SizedBox(height: 4),
+                      SvgPicture.asset(
+                        'assets/svg/mamma_mind_logo.svg',
+                        height: 90,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: MammaMindSpacing.md),
+                Center(
+                  child: Text(
+                    MammaMindData.heroHeadline,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
+                ),
+                const SizedBox(height: MammaMindSpacing.xs),
+                Center(
+                  child: Text(
+                    MammaMindData.heroLead,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.bodyLarge,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -86,7 +152,10 @@ class _WhyMammaMindSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Varför MammaMind?', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          'Varför MammaMind?',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: MammaMindSpacing.xs),
         for (final p in MammaMindData.whyMammaMindParagraphs)
           Padding(
@@ -94,22 +163,26 @@ class _WhyMammaMindSection extends StatelessWidget {
             child: Text(p, style: Theme.of(context).textTheme.bodyMedium),
           ),
         const SizedBox(height: MammaMindSpacing.xs),
-        Wrap(
-          spacing: MammaMindSpacing.md,
-          runSpacing: MammaMindSpacing.xs,
-          children: [
-            _ContactIconLink(
-              assetPath: 'assets/svg/instagram-logo.svg',
-              label: MammaMindData.instagramHandle,
-              onTap: () => launchUrl(Uri.parse(MammaMindData.instagramUrl)),
-            ),
-            _ContactIconLink(
-              assetPath: 'assets/svg/email.svg',
-              label: MammaMindData.contactEmail,
-              onTap: () =>
-                  launchUrl(Uri.parse('mailto:${MammaMindData.contactEmail}')),
-            ),
-          ],
+        Center(
+          child: Wrap(
+            alignment: WrapAlignment.center,
+            spacing: MammaMindSpacing.md,
+            runSpacing: MammaMindSpacing.xs,
+            children: [
+              _ContactIconLink(
+                assetPath: 'assets/svg/instagram-logo.svg',
+                label: MammaMindData.instagramHandle,
+                onTap: () => launchUrl(Uri.parse(MammaMindData.instagramUrl)),
+              ),
+              _ContactIconLink(
+                assetPath: 'assets/svg/email.svg',
+                label: MammaMindData.contactEmail,
+                onTap: () => launchUrl(
+                  Uri.parse('mailto:${MammaMindData.contactEmail}'),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -169,8 +242,10 @@ class _CourseCard extends StatelessWidget {
             for (final line in metaLines)
               Padding(
                 padding: const EdgeInsets.only(bottom: 2),
-                child: Text('• $line',
-                    style: Theme.of(context).textTheme.bodyMedium),
+                child: Text(
+                  '• $line',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
               ),
             const SizedBox(height: MammaMindSpacing.xs),
             ElevatedButton(
@@ -194,18 +269,21 @@ class _CurrentCoursesSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Aktuella kurser 2026',
-            style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          'Aktuella kurser 2026',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         Text(
           'Nya kurstillfällen är planerade till hösten 2026',
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: MammaMindColors.textOngoing),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: MammaMindColors.textOngoing),
         ),
         const SizedBox(height: MammaMindSpacing.sm),
-        Text('🌿 ${MammaMindData.courseTitle}',
-            style: Theme.of(context).textTheme.bodyLarge),
+        Text(
+          '🌿 ${MammaMindData.courseTitle}',
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
         const SizedBox(height: MammaMindSpacing.xs),
         _CourseCard(
           title: MammaMindData.courseTitle,
@@ -216,9 +294,9 @@ class _CurrentCoursesSection extends StatelessWidget {
             MammaMindData.courseSummarySessions,
           ],
           ctaLabel: 'Läs mer om kursen',
-          onTap: () => Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const CourseDetailScreen()),
-          ),
+          onTap: () => Navigator.of(
+            context,
+          ).push(MaterialPageRoute(builder: (_) => const CourseDetailScreen())),
         ),
       ],
     );
@@ -231,13 +309,15 @@ class _WorkshopsSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Prova på workshop', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          'Prova på workshop',
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         Text(
           'Nya workshops är planerade till hösten 2026',
-          style: Theme.of(context)
-              .textTheme
-              .bodySmall
-              ?.copyWith(color: MammaMindColors.textCompleted),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: MammaMindColors.textCompleted),
         ),
         const SizedBox(height: MammaMindSpacing.sm),
         Text(
@@ -271,11 +351,29 @@ class _AboutMeSection extends StatelessWidget {
       children: [
         Text('Om mig', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: MammaMindSpacing.xs),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(MammaMindRadius.md),
-          child: Image.asset(
-            'assets/images/MammaMind_training.jpg',
-            semanticLabel: 'Tara, instruktör för MammaMind',
+        Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 340),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                border: Border.all(color: MammaMindColors.cardBorder),
+                boxShadow: const [
+                  BoxShadow(
+                    color: Color(0x26000000),
+                    blurRadius: 20,
+                    offset: Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.asset(
+                  'assets/images/MammaMind_training.jpg',
+                  semanticLabel: 'Tara, instruktör för MammaMind',
+                ),
+              ),
+            ),
           ),
         ),
         const SizedBox(height: MammaMindSpacing.sm),
@@ -298,8 +396,10 @@ class _FaqSection extends StatelessWidget {
         Text('Vanliga frågor', style: Theme.of(context).textTheme.titleLarge),
         for (final entry in MammaMindData.faq)
           ExpansionTile(
-            title: Text(entry.question,
-                style: Theme.of(context).textTheme.bodyLarge),
+            title: Text(
+              entry.question,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
             childrenPadding: const EdgeInsets.only(
               left: MammaMindSpacing.xs,
               right: MammaMindSpacing.xs,
@@ -311,8 +411,10 @@ class _FaqSection extends StatelessWidget {
                   alignment: Alignment.centerLeft,
                   child: Padding(
                     padding: const EdgeInsets.only(bottom: MammaMindSpacing.xs),
-                    child:
-                        Text(p, style: Theme.of(context).textTheme.bodyMedium),
+                    child: Text(
+                      p,
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
                   ),
                 ),
             ],

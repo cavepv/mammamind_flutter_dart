@@ -43,6 +43,10 @@ class MammaMindData {
   static const instagramUrl = 'https://www.instagram.com/tara_mammamind/';
   static const contactEmail = 'info@mammamind.se';
 
+  static const footerCopyright = '© 2026 · MammaMind';
+  static const footerPrivacyLabel = 'Integritetspolicy';
+  static const footerTermsLabel = 'Allmänna vilkor';
+
   static const aboutMeParagraphs = [
     'Jag är mamma till två barn som har förändrat min syn på hälsa, kropp '
         'och livet i grunden. De har lärt mig att hälsa inte handlar om '
