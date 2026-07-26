@@ -12,11 +12,6 @@ import 'mammamind_data.dart';
 import 'theme.dart';
 import 'workshop_detail_screen.dart';
 
-/// Matches the source site's desktop `.container` max-width (general.css),
-/// so wide/fullscreen viewports get a readable, left-aligned content column
-/// instead of section text and cards stretching edge-to-edge.
-const double _kContentMaxWidth = 1100;
-
 class LandingScreen extends StatelessWidget {
   LandingScreen({super.key});
 
@@ -46,7 +41,7 @@ class LandingScreen extends StatelessWidget {
           const SizedBox(height: MammaMindSpacing.lg),
           Center(
             child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: _kContentMaxWidth),
+              constraints: const BoxConstraints(maxWidth: kContentMaxWidth),
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: MammaMindSpacing.md,
@@ -56,7 +51,10 @@ class LandingScreen extends StatelessWidget {
                   children: [
                     _WhyMammaMindSection(),
                     const _Divider(),
-                    Container(key: _coursesKey, child: _CurrentCoursesSection()),
+                    Container(
+                      key: _coursesKey,
+                      child: _CurrentCoursesSection(),
+                    ),
                     const _Divider(),
                     _WorkshopsSection(),
                     const _Divider(),
@@ -159,7 +157,7 @@ class _Hero extends StatelessWidget {
         ),
         Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: _kContentMaxWidth),
+            constraints: const BoxConstraints(maxWidth: kContentMaxWidth),
             child: Padding(
               padding: const EdgeInsets.all(MammaMindSpacing.md),
               child: Column(
@@ -193,7 +191,9 @@ class _Hero extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: MammaMindSpacing.lg),
-                  Center(child: _HeroScrollIndicator(onTap: onScrollIndicatorTap)),
+                  Center(
+                    child: _HeroScrollIndicator(onTap: onScrollIndicatorTap),
+                  ),
                 ],
               ),
             ),

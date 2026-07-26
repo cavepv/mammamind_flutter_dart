@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 class MammaMindColors {
   static const bgMain = Color(0xFFDBD0BC);
   static const bgSoft = Color(0xFFF3E6E1);
-  static const cardBg = Color(0xFFFFFFFF);
   static const cardBorder = Color(0xFFB89061);
   static const footerBg = Color(0xFFF9F1ED);
 
@@ -36,6 +35,11 @@ class MammaMindSpacing {
   static const lg = 40.0;
   static const xl = 64.0;
 }
+
+/// Matches the source site's desktop `.container` max-width (general.css),
+/// so wide/fullscreen viewports get a readable, left-aligned content column
+/// instead of text and cards stretching edge-to-edge.
+const double kContentMaxWidth = 1100;
 
 class MammaMindTypography {
   // ponytail: general.css uses viewport-relative clamp() for h1/h2; Flutter
@@ -79,7 +83,12 @@ ThemeData buildMammaMindTheme() {
       surface: MammaMindColors.bgMain,
     ),
     cardTheme: const CardThemeData(
-      color: MammaMindColors.cardBg,
+      // ponytail: source site's cards (.course-card, course-meta lists) have
+      // no background at all, sitting directly on the page color - was
+      // white here, causing the boxed-in look fixed manually on the
+      // landing page's course cards; fixing the shared theme instead so
+      // every screen's Card (detail-page meta lists included) matches.
+      color: Colors.transparent,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.all(Radius.circular(MammaMindRadius.md)),
         side: BorderSide(color: MammaMindColors.cardBorder),
